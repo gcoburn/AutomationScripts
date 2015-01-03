@@ -24,7 +24,7 @@ Options:
  -f force extending without a disk rescan. Use this if the OS has detected the enlarged disk already, otherwise we first check whether the underlying disk is larger after a SCSI rescan
     
 Example:
-./lvmresize.sh -p /dev/sda2 -l /dev/VolGroup/lv_root -f" 1>&2
+./resizeDisk.sh -p /dev/sda2 -l /dev/VolGroup/lv_root -f" 1>&2
   exit 1
 } 
 
