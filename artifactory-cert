@@ -1,0 +1,9 @@
+openssl s_client -connect ${artifactory_host}:${artifactory_port} < /dev/null | sed -ne '/-BEGIN CERTIFICATE-/,/-END CERTIFICATE-/p' > /tmp/${BUILD_NUMBER}.pem
+keytool -import -alias ${artifactory_host} -file /tmp/${BUILD_NUMBER}.pem -keystore ../../../../../../../etc/pki/java/cacerts -storepass changeit -noprompt
+exitStatus=$?
+echo "Exit code for cert import command: $exitStatus"
+if [ $? -eq 0 ]
+  then
+    echo "removing the cert..."
+    rm -rf /tmp/${BUILD_NUMBER}.pem
+fi
