@@ -18,6 +18,9 @@ sed -i 's/enabled=0/enabled=1/g' ./photon-iso.repo
 echo "Installing components"
 tdnf install -y vmware-lightwave-server
 
-echo "Installation complete:" 
-echo "use /opt/vmware/bin/ic-promote to build your first server"
-echo "or /opt/vmware/bin/ic-promote --partner <hostname or ip-address of partner instance> to build a partner server"
+echo " "
+echo " "
+tput setaf 2; echo "Installation complete:" 
+echo " "
+tput setaf 2; echo "use /opt/vmware/bin/ic-promote to build your first server"
+tput setaf 2; echo "or /opt/vmware/bin/ic-promote --partner <hostname or ip-address of partner instance> to build a partner server"
