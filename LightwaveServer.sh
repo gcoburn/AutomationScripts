@@ -15,4 +15,9 @@ echo "Editing the photon-iso.repo"
 sed -i 's/enabled=0/enabled=1/g' ./photon-iso.repo
 
 #install server optional
+echo "Installing components"
 tdnf install -y vmware-lightwave-server
+
+echo "Installation complete:" 
+echo "/opt/vmware/bin/ic-promote to build your first server"
+echo "use /opt/vmware/bin/ic-join --domain-controller <hostname or ip-address of domain controller>"
