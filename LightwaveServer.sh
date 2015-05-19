@@ -19,5 +19,5 @@ echo "Installing components"
 tdnf install -y vmware-lightwave-server
 
 echo "Installation complete:" 
-echo "/opt/vmware/bin/ic-promote to build your first server"
-echo "use /opt/vmware/bin/ic-join --domain-controller <hostname or ip-address of domain controller>"
+echo "use /opt/vmware/bin/ic-promote to build your first server"
+echo "or /opt/vmware/bin/ic-join --domain-controller <hostname or ip-address of domain controller> to build a partner server"
