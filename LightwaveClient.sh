@@ -18,5 +18,7 @@ sed -i 's/enabled=0/enabled=1/g' ./photon-iso.repo
 echo "Installing components"
 tdnf install -y vmware-lightwave-clients
 
-echo "Installation complete:" 
-echo "use /opt/vmware/bin/ic-join --domain-controller <hostname or ip-address of domain controller> to join the domain"
+echo " "
+tput setaf 2; echo "Installation complete:" 
+echo " "
+tput setaf 2; echo "use /opt/vmware/bin/ic-join --domain-controller <hostname or ip-address of domain controller> to join the domain"
