@@ -1,6 +1,7 @@
 #!/bin/bash
-# go to the repos directory
-cd /etc/yum.repos.d
+#created by Gary Coburn to speed deployment of multiple lightwave servers or clients on the core photon release
+
+# prompt user for the install type, this will decide and issue the proper commands to install either server/partner or the client
 read -p "Are you installing server or client components? (enter s for server, c for client) " installType
 if [ "$installType" = "s" ] ; then
     installCommand="tdnf install -y vmware-lightwave-server"
@@ -12,13 +13,16 @@ else
     echo "You didn't enter a valid response... exiting!!!"
 fi
 
+# go to the repos directory
+cd /etc/yum.repos.d
+
 #get the lightwave repo
 echo "Getting the lightwave.repo"
-wget http://raw.githubusercontent.com/gcoburn/AutomationScripts/master/lightwave.repo
+wget http://raw.githubusercontent.com/gcoburn/AutomationScripts/master/LightwaveScripts/lightwave.repo
 
 #get the extras repo
 echo "Getting the photon-extras.repo"
-wget http://raw.githubusercontent.com/gcoburn/AutomationScripts/master/photon-extras.repo
+wget http://raw.githubusercontent.com/gcoburn/AutomationScripts/master/LightwaveScripts/photon-extras.repo
 
 #edit the photon-iso.repo
 echo "Editing the photon-iso.repo"

@@ -1,3 +1,6 @@
+#!/bin/bash
+# created by Gary coburn to enable the client authentication via lightwave ldap
+# prereqs are that the lightwave client is already installed
 
 /opt/likewise/bin/domainjoin-cli configure --enable pam
 /opt/likewise/bin/domainjoin-cli configure --enable nsswitch
