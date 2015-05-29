@@ -3,11 +3,11 @@
 cd /etc/yum.repos.d
 read -p "Are you installing server or client components? (enter s for server, c for client) " installType
 if [ "$installType" = "s" ] ; then
-    installCommand = "tdnf install -y vmware-lightwave-server"
-    nextSteps = "use /opt/vmware/bin/ic-promote to build your first server or /opt/vmware/bin/ic-promote --partner <hostname or ip-address of partner instance> to build a partner server"
+    installCommand="tdnf install -y vmware-lightwave-server"
+    nextSteps="use /opt/vmware/bin/ic-promote to build your first server or /opt/vmware/bin/ic-promote --partner <hostname or ip-address of partner instance> to build a partner server"
 elif [ "$installType" = "c" ] ; then
-    installCommand = "tdnf install -y vmware-lightwave-clients"
-    nextSteps = "use /opt/vmware/bin/ic-join --domain-controller <hostname or ip-address of domain controller> to join the domain"    
+    installCommand="tdnf install -y vmware-lightwave-clients"
+    nextSteps="use /opt/vmware/bin/ic-join --domain-controller <hostname or ip-address of domain controller> to join the domain"    
 else
     echo "You didn't enter a valid response... exiting!!!"
 fi
