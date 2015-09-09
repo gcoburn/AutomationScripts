@@ -1,0 +1,66 @@
+CREATE DATABASE  IF NOT EXISTS `motorcloud` /*!40100 DEFAULT CHARACTER SET latin1 */;
+USE `motorcloud`;
+-- MySQL dump 10.13  Distrib 5.5.24, for osx10.5 (i386)
+--
+-- Host: localhost    Database: motorcloud
+-- ------------------------------------------------------
+-- Server version	5.5.27
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `Players`
+--
+
+DROP TABLE IF EXISTS `Players`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `Players` (
+  `player_id` int(11) NOT NULL AUTO_INCREMENT,
+  `first_name` varchar(100) DEFAULT NULL,
+  `last_name` varchar(100) DEFAULT NULL,
+  `email_id` varchar(100) DEFAULT NULL,
+  `twitter_id` varchar(100) DEFAULT NULL,
+  `stage_name` varchar(100) DEFAULT NULL,
+  `catch_phrase` varchar(100) DEFAULT NULL,
+  `mini_bio` varchar(500) DEFAULT NULL,
+  `contact` varchar(1) DEFAULT NULL,
+  PRIMARY KEY (`player_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=latin1;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Dumping data for table `Players`
+--
+
+LOCK TABLES `Players` WRITE;
+/*!40000 ALTER TABLE `Players` DISABLE KEYS */;
+INSERT INTO `Players` VALUES (63,'Gary','Coburn','gcoburn@vmware.com','@garycoburn','Reggie Seno','Me Bang Drum','I put the boom boom in the room room.','Y'),(64,'Jay','Marshall','jj@jjhollywood.com','@jjhollywood','JJ Hollywood','Sweatin\' the Rock... Bleedin\' the Roll','I put the \"aas\" in PaaS.','N');
+/*!40000 ALTER TABLE `Players` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Dumping routines for database 'motorcloud'
+--
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2014-08-23 20:20:24
+GRANT ALL ON *.* to root@'%' IDENTIFIED BY 'P@ssw0rd';
+FLUSH PRIVILEGES;
