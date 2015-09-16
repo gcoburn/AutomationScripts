@@ -110,14 +110,13 @@ $Elevated = New-Object Security.Principal.WindowsPrincipal( [Security.Principal.
 # ----------------------------------------
 
 # ----------------------------------------
-# 		Disable UAC
+# 		Registry settings
 # ----------------------------------------
-
-set-location HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System
-Set-ItemProperty . EnableLUA "0"
+New-ItemProperty HKLM:\System\CurrentControlSet\Control\Lsa -Name "DisableLoopbackCheck" -Value "1" -PropertyType dword -Force | Out-Null
+New-ItemProperty HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\System -Name "EnableLUA" -Value "0" -PropertyType dword -Force | Out-Null
 
 # ----------------------------------------
-# 		End Disable UAC
+# 		End Registry Settings
 # ----------------------------------------
 
 # ----------------------------------------
