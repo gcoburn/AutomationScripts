@@ -79,7 +79,6 @@ $Elevated = New-Object Security.Principal.WindowsPrincipal( [Security.Principal.
 
 # Creating Directory and Log file path
 New-Item -ItemType Directory -Force -Path C:\opt
-Start-Transcript -Path "c:\opt\AgentInstall.txt"
 
 "Validating if the proper values are set" | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
 # Accept parameters if you are passing this via vRO
