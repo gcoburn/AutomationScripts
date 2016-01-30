@@ -88,11 +88,18 @@ if (!$vRAurl) {
   $IaaS = read-Host -Prompt "What is fqdn of your IaaS Server? (ex. windowsServer.domain)  "
   $Password = read-Host -Prompt "What would you like the password for the darwin user to be?  "
 }
-"The following values have been set" | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-"vRA Appliance is $vRAurl " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-"IaaS server is $IaaS " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-"Password is $Password " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
 
+if (!$vRAurl -Or !$IaaS -Or !$Password) {
+  throw "A key value is not set!"
+  ExitCode[1]
+}
+else
+{
+  "The following values have been set" | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+  "vRA Appliance is $vRAurl " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+  "IaaS server is $IaaS " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+  "Password is $Password " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+}
 
 # Adding the .NET framework
 "Adding .NET 3.5 features" | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
@@ -192,3 +199,4 @@ $bootstrapInstall = Start-Process $bootstrapFile -ArgumentList $argumentList -Wa
 # ----------------------------------------
 # 		Install Script Complete
 # ----------------------------------------
+ExitCode=[0]
