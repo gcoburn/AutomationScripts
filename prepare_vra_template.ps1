@@ -91,7 +91,6 @@ if (!$vRAurl) {
 
 if (!$vRAurl -Or !$IaaS -Or !$Password) {
   throw "A key value is not set!"
-  ExitCode[1]
 }
 else
 {
@@ -199,4 +198,3 @@ $bootstrapInstall = Start-Process $bootstrapFile -ArgumentList $argumentList -Wa
 # ----------------------------------------
 # 		Install Script Complete
 # ----------------------------------------
-ExitCode=[0]
