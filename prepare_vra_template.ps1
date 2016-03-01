@@ -62,11 +62,9 @@ $Elevated = New-Object Security.Principal.WindowsPrincipal( [Security.Principal.
 # If this is unattended then these will be set by the parameters
 # Otherwise you can preset these for run time or simply answer the prompts
 
-# $vRAurl = "va-vra.biteback.records"
-# $IaaS = "win-vra.biteback.records"
-# $Password = "VMware1!"
-
-# incomplete this section will build what the script prompts for later
+# $vRAurl = "virtual_appliance_hostname.fqdn"
+# $IaaS = "windows_server_hostname.fqdn"
+# $Password = "password"
 
 # ----------------------------------------
 # 		END OF USER CONFIGURATION
@@ -79,6 +77,7 @@ $Elevated = New-Object Security.Principal.WindowsPrincipal( [Security.Principal.
 
 # Creating Directory and Log file path
 New-Item -ItemType Directory -Force -Path C:\opt
+Start-Transcript -Path "c:\opt\AgentInstall.txt"
 
 "Validating if the proper values are set" | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
 # Accept parameters if you are passing this via vRO
@@ -88,17 +87,11 @@ if (!$vRAurl) {
   $IaaS = read-Host -Prompt "What is fqdn of your IaaS Server? (ex. windowsServer.domain)  "
   $Password = read-Host -Prompt "What would you like the password for the darwin user to be?  "
 }
+"The following values have been set" | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+"vRA Appliance is $vRAurl " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+"IaaS server is $IaaS " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+"Password is ******** " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
 
-if (!$vRAurl -Or !$IaaS -Or !$Password) {
-  throw "A key value is not set!"
-}
-else
-{
-  "The following values have been set" | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-  "vRA Appliance is $vRAurl " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-  "IaaS server is $IaaS " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-  "Password is $Password " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-}
 
 # Adding the .NET framework
 "Adding .NET 3.5 features" | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
