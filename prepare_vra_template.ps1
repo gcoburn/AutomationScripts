@@ -76,66 +76,35 @@ $Elevated = New-Object Security.Principal.WindowsPrincipal( [Security.Principal.
 # ----------------------------------------
 
 # ---------------------------------------
-#      Check .NET Framework  Version
-# ---------------------------------------
-
-$framework=(Get-ChildItem -Path $Env:windir\Microsoft.NET\Framework | Where-Object {$_.PSIsContainer -eq $true } | Where-Object {$_.Name -match 'v\d\.\d'} | Sort-Object -Property Name -Descending | Select-Object -First 1).Name -split "v"
-write-host $framework
-if ($framework -gt "3.0.0")
-{
-    ".NET 3.5 features have been verified" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-}
-else
-{
-    ".NET 3.5 doesn't appear to be installed" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Red
-}
-
-# ----------------------------------------
-# 		END OF .NET CHECK
-# ----------------------------------------
-
-# ---------------------------------------
 #      Check Operating System Version
 # ---------------------------------------
-
-<<<<<<< HEAD
 # Grab the OS Name
 $os = (get-WMiObject -class Win32_OperatingSystem).caption
 "OS = $os" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-
-# Overwrite $OS variable with smaller string
-if ( $os -like "*2008 R2*" )
+if ( $os -like "*2012 R2*" )
 {
-	$os = "2008"
-    "OS = $os" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-    if ($framework -le "3.0.0")
-    {
-        "Windows 2008 without .NET Framework 3.5 installed will require a reboot, run Import-Module ServerManager and Add-WindowsFeature as-net-framework then re-execute this script" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Red
-        Throw "This script must exit please manually install .NET framework and re-execute. Review the log file c:\opt\agentinstall.txt for more info"
-    }
+  "Adding .NET 3.5 features" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
+  Install-WindowsFeature -name NET-Framework-Core
+  ".NET 3.5 features installed" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
 }
-elseif ( $os -like "*2012 R2*" )
+elseif ( $os -like "*2008 R2*" )
 {
-	$os = "2012"
-    "OS = $os" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-    if ($framework -le "3.0.0")
-    {
-        "Adding .NET 3.5 features" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
-        Install-WindowsFeature -name NET-Framework-Core
-        ".NET 3.5 features installed" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-    }
+  "OS = $os" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+  $framework=(Get-ChildItem -Path $Env:windir\Microsoft.NET\Framework | Where-Object {$_.PSIsContainer -eq $true } | Where-Object {$_.Name -match 'v\d\.\d'} | Sort-Object -Property Name -Descending | Select-Object -First 1).Name -split "v"
+  "Framework version = $framework" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+  if ($framework -le "3.0.0")
+  {
+    ".NET 3.5 doesn't appear to be installed" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Red
+    "Windows 2008 without .NET Framework 3.5 installed will require a reboot, run Import-Module ServerManager and Add-WindowsFeature as-net-framework then re-execute this script" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Red
+    Throw "This script must exit please manually install .NET framework and re-execute. Review the log file c:\opt\agentinstall.txt for more info"
+
+  }
 }
 else
 {
     "OS = $os is not supported please execute against Windows 2008 or 2012 R2 only!" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Red
      Throw "This script must exit due to unsupported operating system. Review the log file c:\opt\agentinstall.txt for more info"
 }
-=======
-# $vRAurl = "virtual_appliance_hostname.fqdn"
-# $IaaS = "windows_server_hostname.fqdn"
-# $Password = "password"
->>>>>>> origin/master
-
 # ----------------------------------------
 # 		END OF OS CHECK
 # ----------------------------------------
@@ -144,15 +113,7 @@ else
 # 		Install Script
 # ----------------------------------------
 
-<<<<<<< HEAD
 "Validating if the proper values are set" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
-=======
-# Creating Directory and Log file path
-New-Item -ItemType Directory -Force -Path C:\opt
-Start-Transcript -Path "c:\opt\AgentInstall.txt"
-
-"Validating if the proper values are set" | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
->>>>>>> origin/master
 # Accept parameters if you are passing this via vRO
 if (!$vRAurl) {
   "User configuration not set and no command line parameters detected " | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Red
@@ -160,27 +121,12 @@ if (!$vRAurl) {
   $IaaS = read-Host -Prompt "What is fqdn of your IaaS Server? (ex. windowsServer.domain)  "
   $Password = read-Host -Prompt "What would you like the password for the darwin user to be?  "
 }
-<<<<<<< HEAD
 "The following values have been set" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
 "vRA Appliance is $vRAurl " | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
 "IaaS server is $IaaS " | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
 "Password is ******** " | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
 
 "Creating directory structure needed " | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
-=======
-"The following values have been set" | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-"vRA Appliance is $vRAurl " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-"IaaS server is $IaaS " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-"Password is ******** " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-
-
-# Adding the .NET framework
-"Adding .NET 3.5 features" | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
-Install-WindowsFeature -name NET-Framework-Core
-".NET 3.5 features installed" | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-
-"Creating directory structure needed " | Tee-Object -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
->>>>>>> origin/master
 New-Item -ItemType Directory -Force -Path C:\opt\vmware-jre
 New-Item -ItemType Directory -Force -Path C:\opt\bootstrap
 "Directories Created " | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
