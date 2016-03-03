@@ -41,13 +41,53 @@
 # 		END OF USER CONFIGURATION
 # ----------------------------------------
 
+# ----------------------------------------
+# 	     Functions
+# ----------------------------------------
+# function to write output to both file and screen
+function Write-Feedback()
+{
+
+    Write-Host -BackgroundColor $BackgroundColor -ForegroundColor $ForegroundColor $msg;
+    $msg | Out-File "C:\opt\agentinstall.txt" -Append;
+}
+
+# function to download files
+function downloadNeededFiles($url,$file)
+{
+    $msg = "$file Downloading";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
+    [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
+    $clnt = New-Object System.Net.WebClient
+    $clnt.DownloadFile($url,$file)
+    $msg = "$file Downloaded";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
+}
+
+# function to extract zip files
+function extractZip($file,$dest)
+{
+    $msg = "$file extracting files";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
+    $shell = new-object -com shell.application
+    if (!(Test-Path "$file"))
+    {
+        throw "$file does not exist"
+    }
+    New-Item -ItemType Directory -Force -Path $dest -WarningAction SilentlyContinue
+    $shell.namespace($dest).copyhere($shell.namespace("$file").items())
+    $msg = "$file extracted";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
+}
+# ----------------------------------------
+# 	     End Functions
+# ----------------------------------------
+
+
 # ------------------------------------
 #           Log file start
 # ----------------------------------
 # Creating Directory and Log file path
+
 New-Item -ItemType Directory -Force -Path C:\opt
 "Starting the log file" | Out-file -FilePath C:\opt\agentinstall.txt | Write-Host
-
+$msg = "logging all messages:";$BackgroundColor = "Black";$ForegroundColor = "Red";Write-Feedback
 # ----------------------------------------
 # 		CHECK POWERSHELL SESSION
 # ----------------------------------------
@@ -56,19 +96,19 @@ $Elevated = New-Object Security.Principal.WindowsPrincipal( [Security.Principal.
 & {
     if ($Elevated.IsInRole( [Security.Principal.WindowsBuiltInRole]::Administrator ))
     {
-        "PowerShell is running as an administrator." | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+        $msg =  "PowerShell is running as an administrator.";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
     } Else {
-        "Powershell must be run as an adminstrator." | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+        $msg =  "Exiting - Powershell must be run as an adminstrator.";$BackgroundColor = "Black";$ForegroundColor = "Red";Write-Feedback
 		throw "Powershell must be run as an adminstrator."
 	}
     if( $ENV:Processor_architecture -eq "AMD64" )
     {
-      "You are running 64-bit PowerShell" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+        $msg =  "You are running 64-bit PowerShell.";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
     }
     else
     {
-      "You are running 32-bit PowerShell" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Red
-      throw "This script must exit as Windows 32 bit isn't supported."
+        $msg =  "Exiting - 32 Bit is not supported.";$BackgroundColor = "Black";$ForegroundColor = "Red";Write-Feedback
+        throw "This script must exit as Windows 32 bit isn't supported."
     }
 }
 # ----------------------------------------
@@ -80,29 +120,27 @@ $Elevated = New-Object Security.Principal.WindowsPrincipal( [Security.Principal.
 # ---------------------------------------
 # Grab the OS Name
 $os = (get-WMiObject -class Win32_OperatingSystem).caption
-"OS = $os" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+ $msg =  "OS = $os";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 if ( $os -like "*2012 R2*" )
 {
-  "Adding .NET 3.5 features" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
-  Install-WindowsFeature -name NET-Framework-Core
-  ".NET 3.5 features installed" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+    $msg =  "Adding .NET 3.5 features";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
+    Install-WindowsFeature -name NET-Framework-Core
+    $msg =  ".NET 3.5 features installed";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 }
 elseif ( $os -like "*2008 R2*" )
 {
-  "OS = $os" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
   $framework=(Get-ChildItem -Path $Env:windir\Microsoft.NET\Framework | Where-Object {$_.PSIsContainer -eq $true } | Where-Object {$_.Name -match 'v\d\.\d'} | Sort-Object -Property Name -Descending | Select-Object -First 1).Name -split "v"
-  "Framework version = $framework" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+  $msg =  "Framework version = $framework";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
   if ($framework -le "3.0.0")
   {
-    ".NET 3.5 doesn't appear to be installed" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Red
-    "Windows 2008 without .NET Framework 3.5 installed will require a reboot, run Import-Module ServerManager and Add-WindowsFeature as-net-framework then re-execute this script" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Red
-    Throw "This script must exit please manually install .NET framework and re-execute. Review the log file c:\opt\agentinstall.txt for more info"
-
+    $msg =  ".NET 3.5 doesn't appear to be installed";$BackgroundColor = "Black";$ForegroundColor = "Red";Write-Feedback
+    import-module servermanager
+    add-windowsfeature as-net-framework
   }
 }
 else
 {
-    "OS = $os is not supported please execute against Windows 2008 or 2012 R2 only!" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Red
+    $msg =  "OS = $os is not supported please execute against Windows 2008 or 2012 R2 only!";$BackgroundColor = "Black";$ForegroundColor = "Red";Write-Feedback
      Throw "This script must exit due to unsupported operating system. Review the log file c:\opt\agentinstall.txt for more info"
 }
 # ----------------------------------------
@@ -113,58 +151,29 @@ else
 # 		Install Script
 # ----------------------------------------
 
-"Validating if the proper values are set" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
-# Accept parameters if you are passing this via vRO
+$msg =  "Validating if the proper values are set";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
+# Accept parameters if you are passing this via User Interaction
 if (!$vRAurl) {
-  "User configuration not set and no command line parameters detected " | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Red
+  $msg = "User configuration not set and no command line parameters detected ";$BackgroundColor = "Black";$ForegroundColor = "Red";Write-Feedback
   $vRAurl = read-Host -Prompt "What is the fqdn of your vRA Appliance? (vraServer.domain)  "
   $IaaS = read-Host -Prompt "What is fqdn of your IaaS Server? (ex. windowsServer.domain)  "
   $Password = read-Host -Prompt "What would you like the password for the darwin user to be?  "
 }
-"The following values have been set" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-"vRA Appliance is $vRAurl " | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-"IaaS server is $IaaS " | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-"Password is ******** " | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+$msg =  "The following values have been set";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
+$msg =  "vRA Appliance is $vRAurl ";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
+"$msg =  IaaS server is $IaaS ";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
+$msg =  "Password is ******** ";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 
-"Creating directory structure needed " | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
+$msg =  "Creating directory structure needed";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
 New-Item -ItemType Directory -Force -Path C:\opt\vmware-jre
 New-Item -ItemType Directory -Force -Path C:\opt\bootstrap
-"Directories Created " | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-
-#functions
-#Download function called to pull the files
-function downloadNeededFiles($url,$file)
-{
-    "$file Downloading" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
-    [Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
-    $clnt = New-Object System.Net.WebClient
-    $clnt.DownloadFile($url,$file)
-    "$file Downloaded" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-}
-
-#Extract the zip files downloaded
-function extractZip($file,$dest)
-{
-    "$file extracting files" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
-    $shell = new-object -com shell.application
-    if (!(Test-Path "$file"))
-    {
-        throw "$file does not exist"
-    }
-    New-Item -ItemType Directory -Force -Path $dest -WarningAction SilentlyContinue
-    $shell.namespace($dest).copyhere($shell.namespace("$file").items())
-    "$file extracted" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-}
-
-
-# Starting Script steps
+$msg =  "Directories Created";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 
 # Download and Extract the JRE components
-
-"The URL specified is $vRAurl" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-"Downloading JRE zip" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
+$msg = "The URL specified is $vRAurl";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
+$msg = "Calling to download JRE zip";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
 $url="https://" + $vRAurl + ":5480/service/software/download/jre-1.8.0_66-win64.zip"
-"The full URL to your JRE file is $url" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+$msg = "The full URL to your JRE file is $url";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 $file="c:\opt\jre.zip"
 $dest="c:\opt\vmware-jre\"
 # Call Download Function
@@ -173,33 +182,33 @@ downloadNeededFiles $url $file
 extractZip $file $dest
 
 # Pull and execute the Guest Agent Installer
-"Downloading Guest Agent" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
+$msg = "Calling the download for guest agent";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
 $url="https://" + $vRAurl + ":5480/installer/GuestAgentInstaller_x64.exe"
-"The full URL to your GuestAgentInstaller file is $url" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+$msg = "The full URL to your GuestAgentInstaller file is $url";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 $file="c:\GuestAgentInstaller_x64.exe"
 # Call Download Function
 downloadNeededFiles $url $file
-"Executing: $file" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
+$msg = "Executing: $file";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
 cd c:\
 Start-Process C:\GuestAgentInstaller_x64.exe -Wait -PassThru
-"$file Executed" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+$msg = "$file Executed";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 
 # Execute the winservice to put our Agent ready at start up
-"The fqdn you specificed is $IaaS" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+$msg = "The fqdn you specificed is $IaaS";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 $IaaSwithPort=$IaaS + ":443"
 $argumentList = " -i -h $IaaSwithPort -p ssl"
-"Command we run will be winservice.exe & $argumentList" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+$msg = "Command we run will be winservice.exe & $argumentList";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 cd c:\VRMGuestAgent
-"Executing winservice" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
+$msg = "Executing winservice";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
 $winservicefile = ("winservice.exe")
 $gugentInstall = Start-Process $winservicefile -ArgumentList $argumentList -Wait -PassThru
-"Execution of winservice complete" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+$msg = "Execution of winservice complete";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 
 # Download and execute vRA bootstrap agent
-"Downloading Bootstrap" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
+$msg = "Downloading Bootstrap";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
 cd C:\opt\bootstrap
 $url="https://" + $vRAurl + ":5480/service/software/download/vmware-vra-software-agent-bootstrap-windows_7.0.0.0.zip"
-"The full URL to your bootstrap file is $url" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+$msg = "The full URL to your bootstrap file is $url";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 $file="c:\opt\bootstrap\bootstrap.zip"
 $dest="c:\opt\bootstrap\"
 # Call Download Function
@@ -207,26 +216,33 @@ downloadNeededFiles $url $file
 # Call Extract Function
 extractZip $file $dest
 
-"Executing install.bat" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Yellow
+$msg = "Executing install.bat";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
 $bootstrapFile = ("install.bat")
 $argumentList = " password=$Password managerServiceHost=$IaaS cloudProvider=vsphere"
-"Command we run will be install.bat & $argumentList" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+$msg = "Command we run will be install.bat & $argumentList";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 $bootstrapInstall = Start-Process $bootstrapFile -ArgumentList $argumentList -Wait | Out-File -FilePath C:\opt\AgentInstall.txt -Append
-"Execution of install.bat complete" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-
-# ---------------------------------------
-#       Cleaning up downloaded files
-# ---------------------------------------
-"Cleaning up downloaded files" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-"Deleting jre.zip" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-Remove-Item C:\opt\jre.zip
-"Deleting guestagent.exe" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-Remove-Item C:\GuestAgentInstaller_x64.exe
-"Deleting bootstrap.zip" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
-Remove-Item C:\opt\bootstrap\bootstrap.zip
-
-"INSTALL COMPLETE! Ready for shutdown" | Out-file -FilePath C:\opt\agentinstall.txt -Append | Write-Host -ForegroundColor Green
+$msg = "Execution of install.bat complete";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 
 # ----------------------------------------
 # 		Install Script Complete
 # ----------------------------------------
+
+# ---------------------------------------
+#       Cleaning up
+# ---------------------------------------
+$msg = "Cleaning up downloaded files";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
+$msg = "Deleting jre.zip";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
+Remove-Item C:\opt\jre.zip
+$msg = "Deleting guestagent.exe";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
+Remove-Item C:\GuestAgentInstaller_x64.exe
+$msg = "Deleting bootstrap.zip";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
+Remove-Item C:\opt\bootstrap\bootstrap.zip
+# ---------------------------------------
+#       Clean up complete
+# ---------------------------------------
+
+$msg = "INSTALL COMPLETE! Ready for shutdown";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
+
+# ------------------------------------
+#           End Log File
+# ----------------------------------
