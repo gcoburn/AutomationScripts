@@ -173,7 +173,7 @@ $msg =  "Directories Created";$BackgroundColor = "Black";$ForegroundColor = "Gre
 # Download and Extract the JRE components
 $msg = "The URL specified is $vRAurl";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 $msg = "Calling to download JRE zip";$BackgroundColor = "Black";$ForegroundColor = "Yellow";Write-Feedback
-$url="https://" + $vRAurl + ":5480/service/software/download/jre-1.8.0_66-win64.zip"
+$url="https://" + $vRAurl + ":5480/service/software/download/jre-1.8.0_72-win64.zip"
 $msg = "The full URL to your JRE file is $url";$BackgroundColor = "Black";$ForegroundColor = "Green";Write-Feedback
 $file="c:\opt\jre.zip"
 $dest="c:\opt\vmware-jre\"
