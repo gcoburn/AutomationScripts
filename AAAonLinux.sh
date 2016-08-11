@@ -3,7 +3,7 @@
 
 cd /opt
 
-curl -O --insecure https://{$appliance}:5480/service/software/download/prepare_vra_template.sh
+curl -O --insecure {$url}
 
 chmod 777 ./prepare_vra_template.sh
 
